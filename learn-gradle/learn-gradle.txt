@@ -1,0 +1,20 @@
+## gradle  
+参考  https://github.com/waylau/Gradle-2-User-Guide 
+
+1.  Gradle 需要 Java JDK 或者 JRE，版本是 6 及以上。Gradle 将会装载自己的 Groovy 库，因此，Groovy 不需要被安装。任何存在的 Groovy 安装都会被 Gradle 忽略。
+	Gradle 使用你 path 中的 JDK,或者，您可以设置 java_home 环境变量来指向所需的 JDK 安装目录。
+	添加 GRADLE_HOME/bin 到你的 path 环境变量,gradle -v 用来查看安装是否成功.
+
+2.  在 Gradle 中两个顶级概念：project（项目）和 task （任务）
+	所有 Gradle 都有一个或多个 project 构成。project 的展现取决于 Gradle 所做的工作。
+	每个项目project都是由一个或多个 task。一个 task 代表了一个构建生成的原子的作品。这可能是编写一些类，创建一个 JAR ，生成 Javadoc，或发布一些库。
+
+3.	运行 Gradle 是使用 gradle 命令行。命令行会寻找项目的根目录下 build.gradle 的文件,
+	这个就是构建的脚本，或者严格说是构建的配置脚本。他定义了project（项目）和 task 任务）。
+
+	
+	
+	
+	
+	
+	

@@ -1,0 +1,148 @@
+// gradle test
+
+
+// 定义task
+task hello {
+	doLast {
+		println 'Hello world!'
+	}
+}
+// -b 指定build文件名，默认是build.gradle，-q quiet 的简写，意思是要安静、干净的输出
+// gradle -b build-gradle-test.gradle -q hello
+// 快速定义task
+task hello1 << {
+	println 'Hello1 world!'
+}
+
+
+// 构建的脚本都是代码
+task upper << {
+	String someString = 'mY_nAmE'
+	println "Original: " + someString
+	println "Upper case: " + someString.toUpperCase()
+}
+task count << {
+	4.times { print "$it " }
+}
+
+
+//依赖
+task intro(dependsOn: hello) << {
+	println "I'm Gradle"
+}
+//添加一个依赖，相应的 task 不需要存在
+task taskX(dependsOn: 'taskY') << {
+	println 'taskX'
+}
+task taskY << {
+	println 'taskY'
+}
+
+
+//动态 task
+4.times { counter ->
+	task "task$counter" << {
+		println "I'm task number $counter"
+	}
+}
+
+// 一旦 task 创建，他们可以通过一个 API 访问。例如，在运行时您可以使用此动态添加依赖到 task 。
+// 或者 可以添加行为到一个已经存在 task 中
+task0.dependsOn  task3, task2
+
+hello.doFirst {
+	println 'Hello Venus'
+}
+hello.doLast {
+	println 'Hello Mars'
+}
+hello << {
+	println 'Hello Jupiter'
+}
+// doFirst 和 doLast 可以多次执行调用。他们在开始或结束的 task 动作清单中添加动作。task 执行时，按动作列表的顺序执行的动作。操作符 << 仅仅是 doLast 的别名。
+
+//每个 task 可以作为构建脚本的一个属性
+hello.doLast {
+	println "Greetings from the $it.name task."
+}
+
+//额外 task 属性
+//可以添加自己属性到 task ,添加 myProperty属性，设置 、ext.myProperty 初始值,从这一点上，该属性可以读取和设置就像一个预定义的任务属性。
+task myTask {
+	ext.myProperty = "myValue"
+}
+task printTaskProperties << {
+	println myTask.myProperty
+}
+
+//使用 Ant task
+//Ant task 是 Gradle 一等公民。 Gradle 给 Ant task 提供了不错的整合通过简单依靠于 Gradle 。Groovy 被奇异的 AntBuilder 装载。从 Gradle 使用 Ant task 比使用 build.xml 文件更方便和更强大
+task loadfile << {
+	def files = file('../learn-gradle').listFiles().sort()
+	files.each { File file ->
+		if (file.isFile()) {
+			ant.loadfile(srcFile: file, property: file.name)
+			println " *** $file.name ***"
+			println "${ant.properties[file.name]}"
+		}
+	}
+}
+// 使用方法 Gradle 延伸取决你如何组织的建造逻辑。上面的例子中的第一级别的组织你的构建逻辑，是提取方法。
+task checksum << {
+	fileList('../learn-gradle').each {File file ->
+		ant.checksum(file: file, property: "cs_$file.name")
+		println "$file.name Checksum: ${ant.properties["cs_$file.name"]}"
+	}
+}
+task loadfile1 << {
+	fileList('../learn-gradle').each {File file ->
+		ant.loadfile(srcFile: file, property: file.name)
+		println "I'm fond of $file.name"
+	}
+}
+File[] fileList(String dir) {
+	file(dir).listFiles({file -> file.isFile() } as FileFilter).sort()
+}
+
+
+//默认 task
+defaultTasks 'clean', 'run'
+task clean << {
+	println 'Default Cleaning!'
+}
+task run << {
+	println 'Default Running!'
+}
+task other << {
+	println "I'm not a default task!"
+}
+//在多 project 中构建所有的子 project 都可以有自己具体的默认 task 。如果 子 project 没有明确的默认 task，则执行父 project 的默认 task（如果定义的话）
+
+
+
+//Gradle 有配置阶段和执行阶段。配置阶段后，Gradle 知道所有的 task 应该执行。Gradle 提供给你一个钩子来利用这些信息。
+//这个用例将检查发布 的 task 是否是要执行的 task。基于此，你可以赋予不同的值到一些变量。
+//在不同 version 变量中的 distribution 和 release task 执行结果不同
+//whenReady影响了 release task 在 release task 被执行之前。同样适用于 release task 不是 主 task 的情况（比如，task 被 gradle 命令通过了）
+task distribution << {
+	println "We build the zip with version=$version"
+}
+task release(dependsOn: 'distribution') << {
+	println 'We release now'
+}
+gradle.taskGraph.whenReady {taskGraph ->
+	if (taskGraph.hasTask(release)) {
+		version = '1.0'
+	} else {
+		version = '1.0-SNAPSHOT'
+	}
+}
+
+//插件是 Gradle 配置的扩展，通常是添加 task 当前的配置
+// 见 build-java-project.gradle
+
+
+
+
+
+

@@ -1,0 +1,81 @@
+// java project ,  gradle
+
+//Java 插件 定义一个 Java 项目的全部。它会将 Java 插件应用到项目中，并且添加很多 task
+// Gradle 会在 src/main/java 目录下寻找产品代码，在 src/test/java 寻找测试代码 。
+//另外在 src/main/resources 包含了资源的 JAR 文件, src/test/resources 包含了运行测试。
+//所有的输出都在 build 目录下，JAR 在 build/libs 目录下
+//Java 插件增添了相当多的 task 在 project 中。然而，只有少数的task 是需要在 构建 project 时需要的。
+//最常用的任务是 build task，这就能构建一个完整的 project 。当你运行 gradle build，Gradle 将编译和测试您的代码，并创建一个包含您的主要类和资源的 JAR 文件。
+/*其他有用的 task 有:
+clean
+删除 build 目录，移除所有构建的文件
+assemble
+编译打包代码,但不运行单元测试。其他插件带给这个 task 更多特性，比如如果你使用 War 插件，task 将给 project 构建 WAR 文件
+check
+编译测试你的代码。其他插件带给这个 task 提供更多检查类型。比如，你使用 checkstyle 插件, 这个 task 建辉在你的代码中 执行 Checkstyle 
+*/
+apply plugin: 'java'
+
+//创建一个 Eclipse project  执行 gradle eclipse 来生产 Eclipse project 文件
+apply plugin: 'eclipse'
+
+
+
+
+
+//自定义项目 
+// Java 插件添加属性到您的项目。这些属性通常足在启动时使用默认值。如果他们不适合你，你很容易改他们
+//执行 gradle properties 可以列出 project 的属性,你可以看到 Java 插件添加的属性和他们的默认值
+sourceCompatibility = 1.8 // java版本号
+version = '1.0' // 项目版本号
+jar {
+	manifest {
+		attributes 'Implementation-Title': 'Gradle Quickstart',
+				   'Implementation-Version': version
+	}
+}
+
+
+
+
+
+
+
+//外部依赖
+//Java 项目经常会有一些外部 JAR 的依赖。为了引用这些 JAR 文件，需要在 Gradle　里面配置。
+//在　Gradle，类似与　JAR 文件将会放在 repository 中。一个 repository 可以被依赖的项目获取到，或者提交项目的拷贝到 repository 中，或者两者都可。
+
+//使用 Maven repository 
+repositories {
+	mavenCentral()
+}
+
+// 声明了 编译时 需要的依赖和测试时需要的依赖
+dependencies {
+	compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
+	testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+
+
+
+
+
+
+
+
+//发布 JAR 文件
+//发布到了本地路径。你也可以发布到 远程位置或者多个位置
+uploadArchives {
+	repositories {
+	   flatDir {
+		   dirs 'repos'
+	   }
+	}
+}
+
+
+
+
+
+
